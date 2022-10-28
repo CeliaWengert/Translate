@@ -4,7 +4,9 @@ from googletrans import Translator
 import time
 import getopt, sys
 
-st.set_page_config(page_title="Translate Excel", layout="wide")#,page_icon = 'GE_favicon.png')
+st.set_page_config(page_title="Translate Excel", layout="wide")#,page_icon = 'ico.png')
+
+st.title('Translate Excel')
 
 st.markdown(
     """<style>
