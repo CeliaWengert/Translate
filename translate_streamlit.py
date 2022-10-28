@@ -22,7 +22,7 @@ st.markdown(
     footer {visibility: hidden;}
     </style>""", unsafe_allow_html=True)
     
-st.markdown(f'<p style="color:#83C9FF;font-size:100px;">{"Excel file translator"}</p>', unsafe_allow_html=True)
+st.title("Excel file translator")
 
 languages = {'af': 'afrikaans','sq': 'albanian', 
 'am': 'amharic', 'ar': 'arabic', 
