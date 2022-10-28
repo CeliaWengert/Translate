@@ -84,7 +84,7 @@ uploaded_files = st.file_uploader("Choose a CSV file", accept_multiple_files=Tru
 
 for uploaded_file in uploaded_files:
     bytes_data = uploaded_file.read()
-    st.write("Preview:", uploaded_file.name)
+    st.write("filename:", uploaded_file.name)
     df = pd.read_excel(uploaded_file)
     st.dataframe(df.head(3))
 
@@ -158,7 +158,7 @@ for uploaded_file in uploaded_files:
 
                 st.download_button(label='📥 Download Current Data',
                                             data=df_xlsx ,
-                                            file_name= 'Translated_'+uploaded_file.name+'_'+str(now.year)+'-'+str(now.month).zfill(2)+'-'+str(now.day).zfill(2)+'.xlsx')
+                                            file_name= 'Translated_'+str(uploaded_file.name)[:-5]+'_'+str(now.year)+'-'+str(now.month).zfill(2)+'-'+str(now.day).zfill(2)+'.xlsx')
 
             else:
                 flag=0
