@@ -4,7 +4,7 @@ from googletrans import Translator
 import time
 import getopt, sys
 
-st.set_page_config(page_title="IF ANALYTICS",page_icon = 'GE_favicon.png', layout="wide")
+st.set_page_config(page_title="Translate Excel", layout="wide")#,page_icon = 'GE_favicon.png')
 
 st.markdown(
     """<style>
@@ -103,30 +103,64 @@ for uploaded_file in uploaded_files:
     bytes_data = uploaded_file.read()
     st.write("filename:", uploaded_file.name)
     df = pd.read_excel(uploaded_file)
+    st.dataframe(df)
     inputlang = st.text_input('Source language', 'dutch',key = "1_1")
     outputlang = st.text_input('Output language', 'french',key = "1_2")
-    columnslist = st.text_input('List of columns to translate', 'A-E/A,E or 1-5/1,5',key = "1_3")
-    st.write(columnslist)
+    inputcolumn = st.text_input('List of columns to translate', 'A-E/A,E or 1-5/1,5',key = "1_3")
+    inputcolumn=str(inputcolumn)
+    st.write(inputcolumn)
+
+ 
+    if (inputcolumn.count(',')>0) and (str(inputcolumn).count('-')==0):
+        columnslist = inputcolumn.split(',')
+    elif (inputcolumn.count('-')==1) and (inputcolumn.count(',')==0):
+        start=inputcolumn.split('-')[0]
+        stop=inputcolumn.split('-')[1]
+        columnslist = range_char(start,stop)
+    elif (str(inputcolumn).count('-')==0) and (str(inputcolumn).count(',')==0):
+        columnslist =inputcolumn
+    else :
+        st.write('Error')
     
-#     if (arg.count(',')>0) and (str(arg).count('-')==0):
-#         columnslist = arg.split(',')
-#     elif (arg.count('-')==1) and (arg.count(',')==0):
-#         start=arg.split('-')[0]
-#         stop=arg.split('-')[1]
-#         columnslist = range_char(start,stop)
-#     elif (str(arg).count('-')==0) and (str(arg).count(',')==0):
-#         columnslist =arg
+    columnlist_temp=[]
+    for i in columnslist:
+        if i.isnumeric():
+            columnlist_temp.append(int(i)-1)
+        else : 
+            columnlist_temp.append(ord(i)-65)    
+    
+    try :
+        
+        columnslist=columnlist_temp
+    
+        timestr = time.strftime("%Y.%m.%d-%H.%M.%S")
+        flag = 1
+        
+        t1=time.perf_counter()
 
-#     columns_=df.iloc[:,columnslist]
+        for lang_code,lang in languages.items():
+            if outputlang in lang:
+                flag=1
+                translator = Translator()
+                columns_=df.iloc[:,columnslist]
 
-#     for i,c in enumerate(columns_):
-#         df["Translated "+c+" to "+outputlang]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=outputlang).text)
+                for i,c in enumerate(columns_):
+                    df["Translated "+c+" to "+lang]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=lang_code).text)
+                
+                # if outputfile.count('csv')==1:
+                    # df.to_csv(outputfile,index=False,sep=';')
+                # elif outputfile.count('xlsx')==1:
+                    # df.to_excel(outputfile,index=False,sheet_name = 'Translated Data')
+                    
+                st.table(df.head(3))
+            
+                t2=time.perf_counter()
 
-#     columnlist_temp=[]
-#         for i in columnslist:
-#             if i.isnumeric():
-#                 columnlist_temp.append(int(i)-1)
-#             else : 
-#                 columnlist_temp.append(ord(i)-65)
+                st.write('Translation complete!\nExecution time:'+str(round(t2-t1,1))+'s.')
 
-    st.dataframe(df)
+            else:
+                flag=0
+                continue
+    except Exception as e :
+        st.write('FATAL ERROR : ',e)
+
