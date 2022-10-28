@@ -61,7 +61,11 @@ for uploaded_file in uploaded_files:
     df = pd.read_excel(uploaded_file)
     inputlang = st.text_input('Source language', 'dutch')
     outputlang = st.text_input('Output language', 'french')
-    
-    df["Translated"]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=outputlang).text)
+    columnslist = st.text_input('Output language', 'french')
+        
+    columns_=df.iloc[:,columnslist]
+
+    for i,c in enumerate(columns_):
+        df["Translated "+c+" to "+outputlang]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=outputlang).text)
 
     st.dataframe(df)
