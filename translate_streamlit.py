@@ -4,6 +4,26 @@ from googletrans import Translator
 import time
 import getopt, sys
 
+# This code is different for each deployed app.
+CURRENT_THEME = "blue"
+IS_DARK_THEME = True
+EXPANDER_TEXT = """
+    This is a custom theme. You can enable it by copying the following code
+    to `.streamlit/config.toml`:
+    ```python
+[theme]
+base="dark"
+primaryColor="#00E0FF"
+backgroundColor="#0d1623"
+secondaryBackgroundColor="#011b32"
+
+[server]
+runOnSave = true
+
+[browser]
+gatherUsageStats= false
+    """
+
 st.set_page_config(page_title="Translate Excel", layout="wide")#,page_icon = 'ico.png')
 
 st.title('Translate Excel')
