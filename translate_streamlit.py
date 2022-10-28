@@ -12,11 +12,6 @@ st.markdown(
     """<style>
     
     [data-testid="stSidebar"][aria-expanded="true"] > div:first-child{width: 500;}
-    [data-testid="stHeader"]
-    {
-        color: white;
-        background-color: black;
-    }
     table
     {
         width: 100%;
@@ -24,24 +19,10 @@ st.markdown(
         text-align:right;
         background-color: #011b32;
     }
-    span[data-baseweb="tag"]
-    {
-        color: #00E0FF;
-        background-color:#0D1623;
-    }
-    div[data-baseweb="select"] > div
-    {
-        color: #00E0FF;
-        background-color: #234E78;
-    }
-    div[role="popover"] ul
-    {
-    background-color: red;
-    }
-
     footer {visibility: hidden;}
-
     </style>""", unsafe_allow_html=True)
+    
+st.title('Excel file translator')
 
 
 languages = {'af': 'afrikaans','sq': 'albanian', 
@@ -107,8 +88,8 @@ for uploaded_file in uploaded_files:
     df = pd.read_excel(uploaded_file)
     st.dataframe(df.head(3))
 
-    inputlang = st.selectbox('Source language',languages.values(),key = "1_1")
-    outputlang = st.selectbox('Output language',languages.values(),key = "1_2")
+    inputlang = st.selectbox('Source language',languages.values(),index=20,key = "1_1")
+    outputlang = st.selectbox('Output language',languages.values(),index=26,key = "1_2")
     inputcolumn = st.text_input('List of columns to translate A-E/A,E or 1-5/1,5', 'A',key = "1_3")
     inputcolumn=str(inputcolumn)
     st.write(inputcolumn)
@@ -151,17 +132,13 @@ for uploaded_file in uploaded_files:
 
                 for i,c in enumerate(columns_):
                     df["Translated "+c+" to "+lang]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=lang_code).text)
-                
-                # if outputfile.count('csv')==1:
-                    # df.to_csv(outputfile,index=False,sep=';')
-                # elif outputfile.count('xlsx')==1:
-                    # df.to_excel(outputfile,index=False,sheet_name = 'Translated Data')
                     
-                st.table(df.head(3))
+                st.dataframe(df.head(3))
             
                 t2=time.perf_counter()
 
-                st.write('Translation complete!\nExecution time:'+str(round(t2-t1,1))+'s.')
+                st.write('Translation complete!')
+                st.write('Execution time:'+str(round(t2-t1,1))+'s.')
                 
                 def to_excel(df):
                     output = BytesIO()
