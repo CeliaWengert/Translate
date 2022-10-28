@@ -53,6 +53,12 @@ languages = {'af': 'afrikaans','sq': 'albanian',
 'xh': 'xhosa', 'yi': 'yiddish', 
 'yo': 'yoruba', 'zu': 'zulu'}
 
+def range_char(start, stop):
+    if (type(start) == int) and (type(stop) == int):
+        return list(range(start, stop+1))
+    else : 
+        return [chr(n) for n in range(ord(start), ord(stop)+1)]
+
 uploaded_files = st.file_uploader("Choose a CSV file", accept_multiple_files=True)
 
 for uploaded_file in uploaded_files:
@@ -61,11 +67,21 @@ for uploaded_file in uploaded_files:
     df = pd.read_excel(uploaded_file)
     inputlang = st.text_input('Source language', 'dutch',key = "1_1")
     outputlang = st.text_input('Output language', 'french',key = "1_2")
-    columnslist = st.text_input('Column selection', 'F,H,I',key = "1_3")
-        
-    columns_=df.iloc[:,columnslist]
+    columnslist = st.text_input('List of columns to translate', 'A-E/A,E or 1-5/1,5',key = "1_3")
+    st.write(columnslist)
+    
+#     if (arg.count(',')>0) and (str(arg).count('-')==0):
+#         columnslist = arg.split(',')
+#     elif (arg.count('-')==1) and (arg.count(',')==0):
+#         start=arg.split('-')[0]
+#         stop=arg.split('-')[1]
+#         columnslist = range_char(start,stop)
+#     elif (str(arg).count('-')==0) and (str(arg).count(',')==0):
+#         columnslist =arg
 
-    for i,c in enumerate(columns_):
-        df["Translated "+c+" to "+outputlang]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=outputlang).text)
+#     columns_=df.iloc[:,columnslist]
+
+#     for i,c in enumerate(columns_):
+#         df["Translated "+c+" to "+outputlang]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=outputlang).text)
 
     st.dataframe(df)
