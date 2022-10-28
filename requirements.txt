@@ -21,4 +21,4 @@ six==1.15.0
 sniffio==1.1.0
 xlrd==1.2.0
 pyxlsb==1.0.10
- xlsxwriter==3.0.3
+xlsxwriter==3.0.3
