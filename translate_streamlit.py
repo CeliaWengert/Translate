@@ -3,10 +3,10 @@ import pandas as pd
 from googletrans import Translator
 import time
 import getopt, sys
+from pyxlsb import open_workbook as open_xlsb
+from io import BytesIO
 
-st.set_page_config(page_title="Translate Excel", layout="wide")#,page_icon = 'ico.png')
-
-st.title('Translate Excel')
+st.set_page_config(page_title="Translate Excel", layout="wide")#,page_icon = 'GE_favicon.png')
 
 st.markdown(
     """<style>
@@ -105,11 +105,11 @@ for uploaded_file in uploaded_files:
     bytes_data = uploaded_file.read()
     st.write("filename:", uploaded_file.name)
     df = pd.read_excel(uploaded_file)
-    df=df.fillna(0)
-    st.dataframe(df)
-    inputlang = st.text_input('Source language', 'dutch',key = "1_1")
-    outputlang = st.text_input('Output language', 'french',key = "1_2")
-    inputcolumn = st.text_input('List of columns to translate\tA-E/A,E or 1-5/1,5', 'A',key = "1_3")
+    st.dataframe(df.head(3))
+
+    inputlang = st.selectbox('Source language',languages.values(),key = "1_1")
+    outputlang = st.selectbox('Output language',languages.values(),key = "1_2")
+    inputcolumn = st.text_input('List of columns to translate A-E/A,E or 1-5/1,5', 'A',key = "1_3")
     inputcolumn=str(inputcolumn)
     st.write(inputcolumn)
 
@@ -146,6 +146,8 @@ for uploaded_file in uploaded_files:
                 flag=1
                 translator = Translator()
                 columns_=df.iloc[:,columnslist]
+                
+                df=df.fillna(0)
 
                 for i,c in enumerate(columns_):
                     df["Translated "+c+" to "+lang]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=lang_code).text)
@@ -160,6 +162,26 @@ for uploaded_file in uploaded_files:
                 t2=time.perf_counter()
 
                 st.write('Translation complete!\nExecution time:'+str(round(t2-t1,1))+'s.')
+                
+                def to_excel(df):
+                    output = BytesIO()
+                    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+                    df.to_excel(writer, index=False, sheet_name='Translated')
+                    workbook = writer.book
+                    worksheet = writer.sheets['Translated']
+                    
+                    writer.save()
+                    processed_data = output.getvalue()
+                    return processed_data
+                    
+                df_xlsx = to_excel(df)
+                
+                from datetime import datetime
+                now=datetime.now()
+
+                st.download_button(label='📥 Download Current Data',
+                                            data=df_xlsx ,
+                                            file_name= 'Translated_'+uploaded_file.name+'_'+str(now.year)+'-'+str(now.month).zfill(2)+'-'+str(now.day).zfill(2)+'.xlsx')
 
             else:
                 flag=0
