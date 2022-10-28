@@ -159,7 +159,7 @@ for uploaded_file in uploaded_files:
                         for i,c in enumerate(columns_):
                             df["Translated "+c+" to "+lang]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=lang_code).text)
                         
-                    st.write(df.head(5), use_container_width=True)
+                    st.write(df.head(5).fillna(''), use_container_width=True)
                     
                     placeholder.empty()
                     gif_runner.empty()
