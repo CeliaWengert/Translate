@@ -59,7 +59,7 @@ for uploaded_file in uploaded_files:
     bytes_data = uploaded_file.read()
     st.write("filename:", uploaded_file.name)
     df = pd.read_excel(uploaded_file)
-    inputlang = st.text_input('Source language', 'dutch',key = "1_2")
+    inputlang = st.text_input('Source language', 'dutch',key = "1_1")
     outputlang = st.text_input('Output language', 'french',key = "1_2")
     columnslist = st.text_input('Output language', 'french',key = "1_3")
         
