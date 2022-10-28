@@ -4,6 +4,44 @@ from googletrans import Translator
 import time
 import getopt, sys
 
+st.set_page_config(page_title="IF ANALYTICS",page_icon = 'GE_favicon.png', layout="wide")
+
+st.markdown(
+    """<style>
+    
+    [data-testid="stSidebar"][aria-expanded="true"] > div:first-child{width: 500;}
+    [data-testid="stHeader"]
+    {
+        color: white;
+        background-color: black;
+    }
+    table
+    {
+        width: 100%;
+        color: #68BEBA;
+        text-align:right;
+        background-color: #011b32;
+    }
+    span[data-baseweb="tag"]
+    {
+        color: #00E0FF;
+        background-color:#0D1623;
+    }
+    div[data-baseweb="select"] > div
+    {
+        color: #00E0FF;
+        background-color: #234E78;
+    }
+    div[role="popover"] ul
+    {
+    background-color: red;
+    }
+
+    footer {visibility: hidden;}
+
+    </style>""", unsafe_allow_html=True)
+
+
 languages = {'af': 'afrikaans','sq': 'albanian', 
 'am': 'amharic', 'ar': 'arabic', 
 'hy': 'armenian', 'az': 'azerbaijani', 
@@ -70,18 +108,25 @@ for uploaded_file in uploaded_files:
     columnslist = st.text_input('List of columns to translate', 'A-E/A,E or 1-5/1,5',key = "1_3")
     st.write(columnslist)
     
-#     if (arg.count(',')>0) and (str(arg).count('-')==0):
-#         columnslist = arg.split(',')
-#     elif (arg.count('-')==1) and (arg.count(',')==0):
-#         start=arg.split('-')[0]
-#         stop=arg.split('-')[1]
-#         columnslist = range_char(start,stop)
-#     elif (str(arg).count('-')==0) and (str(arg).count(',')==0):
-#         columnslist =arg
+    if (arg.count(',')>0) and (str(arg).count('-')==0):
+        columnslist = arg.split(',')
+    elif (arg.count('-')==1) and (arg.count(',')==0):
+        start=arg.split('-')[0]
+        stop=arg.split('-')[1]
+        columnslist = range_char(start,stop)
+    elif (str(arg).count('-')==0) and (str(arg).count(',')==0):
+        columnslist =arg
 
-#     columns_=df.iloc[:,columnslist]
+    columns_=df.iloc[:,columnslist]
 
-#     for i,c in enumerate(columns_):
-#         df["Translated "+c+" to "+outputlang]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=outputlang).text)
+    for i,c in enumerate(columns_):
+        df["Translated "+c+" to "+outputlang]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=outputlang).text)
+
+    columnlist_temp=[]
+        for i in columnslist:
+            if i.isnumeric():
+                columnlist_temp.append(int(i)-1)
+            else : 
+                columnlist_temp.append(ord(i)-65)
 
     st.dataframe(df)
