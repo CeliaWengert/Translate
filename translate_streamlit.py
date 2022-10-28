@@ -109,7 +109,7 @@ for uploaded_file in uploaded_files:
     st.dataframe(df)
     inputlang = st.text_input('Source language', 'dutch',key = "1_1")
     outputlang = st.text_input('Output language', 'french',key = "1_2")
-    inputcolumn = st.text_input('List of columns to translate', 'A-E/A,E or 1-5/1,5',key = "1_3")
+    inputcolumn = st.text_input('List of columns to translate\tA-E/A,E or 1-5/1,5', 'A',key = "1_3")
     inputcolumn=str(inputcolumn)
     st.write(inputcolumn)
 
