@@ -61,7 +61,7 @@ for uploaded_file in uploaded_files:
     df = pd.read_excel(uploaded_file)
     inputlang = st.text_input('Source language', 'dutch',key = "1_1")
     outputlang = st.text_input('Output language', 'french',key = "1_2")
-    columnslist = st.text_input('Output language', 'french',key = "1_3")
+    columnslist = st.text_input('Column selection', 'F,H,I',key = "1_3")
         
     columns_=df.iloc[:,columnslist]
 
