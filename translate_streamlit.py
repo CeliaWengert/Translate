@@ -106,6 +106,7 @@ for uploaded_file in uploaded_files:
     outputlang = st.selectbox('Output language',languages.values(),index=26,key = "1_2")
     inputcolumn = st.text_input('List of columns to translate   (for example : 1,5/A,E or A-E/1-5 for a range of columns)', 'A',key = "1_3")
     replacecolumn = st.selectbox('Writting option',['Overwrite','Append'],index=1,key = "1_4")
+    chosoeTranslator = st.selectbox('Choose translator',['Google Tanslate','DeepL (not available)'],index=1,key = "1_5")
 
     if st.button('Translate !'):
     
