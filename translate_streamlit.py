@@ -204,10 +204,10 @@ for uploaded_file in uploaded_files:
                         
                         if replacecolumn=='Overwrite':
                             for i,c in enumerate(columns_):
-                                df[c]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=lang_code).text)
+                                df[c]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=lang_code).text if str(x) !='nan' else '')
                         else :
                             for i,c in enumerate(columns_):
-                                df["Translated "+c+" to "+lang]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=lang_code).text)
+                                df["Translated "+c+" to "+lang]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=lang_code).text if str(x) !='nan' else '')
                     else :
                         if replacecolumn=='Overwrite':
                             for i,c in enumerate(columns_):
