@@ -16,7 +16,7 @@ st.markdown(
     .css-15zrgzn {display: none}
     .css-eczf16 {display: none}
     .css-jn99sy {display: none}
-
+    .css-10trblm {color : #83C9FF;}
     .css-1yk9tp8 {display: none}
 
     button[title="View fullscreen"]{visibility: hidden;}
@@ -32,9 +32,12 @@ st.markdown(
 col1,col2=st.columns([0.08,2])
 with col1:
     st.markdown('')
+    st.markdown('')
     st.image('ico2.png', use_column_width='auto')
+    
 with col2:
-    st.title(" Excel file translator")
+    st.markdown(f'<p style="color:#83C9FF;font-size:75px;">{"Excel file translator"}</p>', unsafe_allow_html=True)
+    
 
 languages = {'af': 'afrikaans','sq': 'albanian', 
 'am': 'amharic', 'ar': 'arabic', 
@@ -121,19 +124,28 @@ def dataframe_viz(df):
 
 uploaded_files = st.file_uploader("Choose an XLSX or CSV file", accept_multiple_files=True)
 
-for uploaded_file in uploaded_files:
+for i,uploaded_file in enumerate(uploaded_files):
+    st.markdown('---')
     bytes_data = uploaded_file.read()
     
+    st.subheader(uploaded_file.name)
     st.write("Preview:")
-    st.dataframe(dataframe_viz(pd.read_excel(uploaded_file)))
     
-    df = pd.read_excel(uploaded_file)
+    if uploaded_file.name[-4:]=='.csv':
+        uploaded_file.seek(0)
+        st.dataframe(dataframe_viz(pd.read_csv(uploaded_file)))
+        uploaded_file.seek(0)
+        df = pd.read_csv(uploaded_file,sep=',')
+        
+    else :
+        st.dataframe(dataframe_viz(pd.read_excel(uploaded_file)))
+        df = pd.read_excel(uploaded_file)
 
-    inputlang = st.selectbox('Source language',languages.values(),index=20,key = "1_1")
-    outputlang = st.selectbox('Output language',languages.values(),index=26,key = "1_2")
-    inputcolumn = st.text_input('Columns to translate   (for example : 1,5/A,E or A-E/1-5 for a range of columns)', 'A',key = "1_3")
-    replacecolumn = st.selectbox('Writting option',['Overwrite','Append'],index=1,key = "1_4")
-    selecttranslator = st.selectbox('Translator engine',['Google Tanslate','DeepL (to be tested)'],index=1,key = "1_5")
+    inputlang = st.selectbox('Source language',languages.values(),index=20,key = str(i)+"_1")
+    outputlang = st.selectbox('Output language',languages.values(),index=26,key = str(i)+"_2")
+    inputcolumn = st.text_input('Columns to translate   (for example : 1,5/A,E or A-E/1-5 for a range of columns)', 'A',key = str(i)+"_3")
+    replacecolumn = st.selectbox('Writting option',['Overwrite','Append'],index=1,key =str(i)+"_4")
+    selecttranslator = st.selectbox('Translator engine',['Google Tanslate','DeepL (to be tested)'],index=0,key = str(i)+"_5")
     
     if selecttranslator !='Google Tanslate':
         
@@ -158,7 +170,7 @@ for uploaded_file in uploaded_files:
             # st.write(f"{my_glossary.source_lang}->{my_glossary.target_lang} ")
             # st.write(f"containing {my_glossary.entry_count} entries")
    
-    if st.button('Translate !'):
+    if st.button('Translate !',key = str(i)+"_6"):
     
         try:
             usage.empty()
@@ -251,4 +263,3 @@ for uploaded_file in uploaded_files:
                         continue
             except Exception as e :
                 st.write('FATAL ERROR : ',e)
-
