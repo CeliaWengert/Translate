@@ -6,8 +6,8 @@ from pyxlsb import open_workbook as open_xlsb
 from io import BytesIO
 import deepl
 
-auth_key = '885d4e9c-0f4f-67f3-2c8d-d9d35dc3d680:fx'
-translator = deepl.Translator(auth_key)
+
+translator = deepl.Translator(dpL_auth_key)
 
 st.set_page_config(page_title="Translate Excel", layout="wide",page_icon = 'ico.png')
 
