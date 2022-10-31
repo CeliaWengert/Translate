@@ -121,6 +121,9 @@ def dataframe_viz(df):
     df_viz=df_viz.set_axis(cols_viz, axis=1)
     return df_viz.head(5).fillna('')
     
+def row_style(row):
+    if row.name ==0:
+        return pd.Series('background-color: #07182B', row.index)
 
 uploaded_files = st.file_uploader("Choose an XLSX or CSV file", accept_multiple_files=True)
 
@@ -133,12 +136,12 @@ for i,uploaded_file in enumerate(uploaded_files):
     
     if uploaded_file.name[-4:]=='.csv':
         uploaded_file.seek(0)
-        st.dataframe(dataframe_viz(pd.read_csv(uploaded_file)))
+        st.dataframe(dataframe_viz(pd.read_csv(uploaded_file)).style.apply(row_style, axis=1))
         uploaded_file.seek(0)
         df = pd.read_csv(uploaded_file,sep=',')
         
     else :
-        st.dataframe(dataframe_viz(pd.read_excel(uploaded_file)))
+        st.dataframe(dataframe_viz(pd.read_excel(uploaded_file)).style.apply(row_style, axis=1))
         df = pd.read_excel(uploaded_file)
 
     inputlang = st.selectbox('Source language',languages.values(),index=20,key = str(i)+"_1")
@@ -210,7 +213,7 @@ for i,uploaded_file in enumerate(uploaded_files):
                     if outputlang in lang:
                         flag=1
                         columns_=df.iloc[:,columnslist]
-                        
+                                                
                         if selecttranslator =='Google Tanslate':
                             from googletrans import Translator
                             translator = Translator()
@@ -228,10 +231,9 @@ for i,uploaded_file in enumerate(uploaded_files):
                             else :
                                 for i,c in enumerate(columns_):
                                     df["Translated "+c+" to "+lang]=df[c].map(lambda x: translator.translate_text(str(x), target_lang=lang_code.upper()).text if str(x) !='nan' else '')
-                                 
                             get_usage(translator)                  
                             
-                        st.write(df.head(5).fillna(''))
+                        st.write(df.head(5).fillna('').style.set_properties(**{'background-color': '#83C9FF','color':'#0D1623'}, subset=[c for i,c in enumerate(columns_)]))
 
                         t2=time.perf_counter()
 
