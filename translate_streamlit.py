@@ -88,11 +88,11 @@ languages = {'af': 'afrikaans','sq': 'albanian',
 def get_usage(translator):
     usage = translator.get_usage()
     if usage.any_limit_reached:
-        status=st.error('Translation limit reached.')
+        status=st.error('⛔️ Translation limit reached.')
     if usage.character.valid:
-        status=st.info(f" ℹ️ Character usage: {usage.character.count} of {usage.character.limit}")
+        status=st.info(f"📰 Character usage: {usage.character.count} of {usage.character.limit}")
     # if usage.document.valid:
-        # status=st.info(f" ℹ️ Document usage: {usage.document.count} of {usage.document.limit}")
+        # status=st.info(f"📰 Document usage: {usage.document.count} of {usage.document.limit}")
     return status
 
 
