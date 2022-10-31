@@ -9,7 +9,7 @@ import deepl
 auth_key = '885d4e9c-0f4f-67f3-2c8d-d9d35dc3d680:fx'
 translator = deepl.Translator(auth_key)
 
-st.set_page_config(page_title="Translate Excel", layout="wide")#,page_icon = 'GE_favicon.png')
+st.set_page_config(page_title="Translate Excel", layout="wide",page_icon = 'ico.png')
 
 st.markdown(
     """<style>
