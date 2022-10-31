@@ -151,7 +151,10 @@ for uploaded_file in uploaded_files:
    
     if st.button('Translate !'):
     
-        usage.empty()
+        try:
+            usage.empty()
+        except:
+            pass
     
         col1,col2=st.columns([0.1,2])
 
