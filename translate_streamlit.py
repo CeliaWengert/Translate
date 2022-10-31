@@ -43,7 +43,7 @@ languages = {'af': 'afrikaans','sq': 'albanian',
 'bg': 'bulgarian', 'ca': 'catalan', 
 'ceb': 'cebuano','ny': 'chichewa',
 'zh-cn': 'chinese (simplified)', 'zh-tw': 'chinese (traditional)', 
-'co': 'corsican','hr': 'croatian', <
+'co': 'corsican','hr': 'croatian',
 'cs': 'czech', 'da': 'danish', 
 'nl': 'dutch', 'en': 'english', 
 'eo': 'esperanto', 'et': 'estonian', 
