@@ -221,20 +221,20 @@ for i,uploaded_file in enumerate(uploaded_files):
                             if replacecolumn=='Overwrite':
                                 for i,c in enumerate(columns_):
                                     df[c]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=lang_code).text if str(x) !='nan' else '')
-                                st.write(df.head(5).fillna('').style.set_properties(**{'color':'#00FFFF'}, subset=[c for i,c in enumerate(columns_)]))
+                                st.write(df.head(5).fillna('').style.set_properties(**{'color':'#00FF00'}, subset=[c for i,c in enumerate(columns_)]))
                             else :
                                 for i,c in enumerate(columns_):
                                     df["Translated "+c+" to "+lang]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=lang_code).text if str(x) !='nan' else '')
-                                st.write(df.head(5).fillna('').style.set_properties(**{'color': '#00FFFF'}, subset=["Translated "+c+" to "+lang for i,c in enumerate(columns_)]))
+                                st.write(df.head(5).fillna('').style.set_properties(**{'color': '#00FF00'}, subset=["Translated "+c+" to "+lang for i,c in enumerate(columns_)]))
                         else :
                             if replacecolumn=='Overwrite':
                                 for i,c in enumerate(columns_):
                                     df[c]=df[c].map(lambda x: translator.translate_text(str(x), target_lang=lang_code.upper()).text if str(x) !='nan' else '')
-                                st.write(df.head(5).fillna('').style.set_properties(**{'color':'#00FFFF'}, subset=[c for i,c in enumerate(columns_)]))
+                                st.write(df.head(5).fillna('').style.set_properties(**{'color':'#00FF00'}, subset=[c for i,c in enumerate(columns_)]))
                             else :
                                 for i,c in enumerate(columns_):
                                     df["Translated "+c+" to "+lang]=df[c].map(lambda x: translator.translate_text(str(x), target_lang=lang_code.upper()).text if str(x) !='nan' else '')
-                                st.write(df.head(5).fillna('').style.set_properties(**{'color': '#00FFFF'}, subset=["Translated "+c+" to "+lang for i,c in enumerate(columns_)]))
+                                st.write(df.head(5).fillna('').style.set_properties(**{'color': '#00FF00'}, subset=["Translated "+c+" to "+lang for i,c in enumerate(columns_)]))
                             get_usage(translator)                  
                             
 
