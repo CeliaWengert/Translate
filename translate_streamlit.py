@@ -82,9 +82,9 @@ def get_usage(translator):
     if usage.any_limit_reached:
         status=st.error('Translation limit reached.')
     if usage.character.valid:
-        status=st.success(f"Character usage: {usage.character.count} of {usage.character.limit}")
+        status=st.info(f"Character usage: {usage.character.count} of {usage.character.limit}")
     # if usage.document.valid:
-        # status=st.success(f"Document usage: {usage.document.count} of {usage.document.limit}")
+        # status=st.info(f"Document usage: {usage.document.count} of {usage.document.limit}")
     return status
 
 
@@ -222,7 +222,7 @@ for uploaded_file in uploaded_files:
                 
                     t2=time.perf_counter()
 
-                    st.write('Translation complete!')
+                    st.success('Translation complete!')
                     st.write('Execution time:'+str(round(t2-t1,1))+'s.')
                     
                     def to_excel(df):
