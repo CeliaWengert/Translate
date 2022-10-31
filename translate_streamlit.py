@@ -6,16 +6,20 @@ from pyxlsb import open_workbook as open_xlsb
 from io import BytesIO
 import deepl
 
-
 dpL_auth_key = '885d4e9c-0f4f-67f3-2c8d-d9d35dc3d680:fx'
 translator = deepl.Translator(dpL_auth_key)
 
-st.set_page_config(page_title="Translate Excel", layout="wide",page_icon = 'ico.png')
+st.set_page_config(page_title="Excel file translator", layout="wide",page_icon = 'ico.png')
 
 st.markdown(
     """<style>
-    
-    [data-testid="stSidebar"][aria-expanded="true"] > div:first-child{width: 500;}
+    .css-15zrgzn {display: none}
+    .css-eczf16 {display: none}
+    .css-jn99sy {display: none}
+
+    .css-1yk9tp8 {display: none}
+
+    button[title="View fullscreen"]{visibility: hidden;}
     table
     {
         width: 100%;
@@ -25,8 +29,11 @@ st.markdown(
     }
     footer {visibility: hidden;}
     </style>""", unsafe_allow_html=True)
-    
-st.title("Excel file translator")
+col1,col2=st.columns([0.08,2])
+with col1:
+    st.image('ico2.png', use_column_width='auto')
+with col2:
+    st.title(" Excel file translator")
 
 languages = {'af': 'afrikaans','sq': 'albanian', 
 'am': 'amharic', 'ar': 'arabic', 
@@ -36,7 +43,7 @@ languages = {'af': 'afrikaans','sq': 'albanian',
 'bg': 'bulgarian', 'ca': 'catalan', 
 'ceb': 'cebuano','ny': 'chichewa',
 'zh-cn': 'chinese (simplified)', 'zh-tw': 'chinese (traditional)', 
-'co': 'corsican','hr': 'croatian', 
+'co': 'corsican','hr': 'croatian', <
 'cs': 'czech', 'da': 'danish', 
 'nl': 'dutch', 'en': 'english', 
 'eo': 'esperanto', 'et': 'estonian', 
@@ -123,7 +130,7 @@ for uploaded_file in uploaded_files:
 
     inputlang = st.selectbox('Source language',languages.values(),index=20,key = "1_1")
     outputlang = st.selectbox('Output language',languages.values(),index=26,key = "1_2")
-    inputcolumn = st.text_input('List of columns to translate   (for example : 1,5/A,E or A-E/1-5 for a range of columns)', 'A',key = "1_3")
+    inputcolumn = st.text_input('Columns to translate   (for example : 1,5/A,E or A-E/1-5 for a range of columns)', 'A',key = "1_3")
     replacecolumn = st.selectbox('Writting option',['Overwrite','Append'],index=1,key = "1_4")
     selecttranslator = st.selectbox('Translator engine',['Google Tanslate','DeepL (available in beta, under development)'],index=1,key = "1_5")
     
@@ -157,103 +164,90 @@ for uploaded_file in uploaded_files:
         except:
             pass
     
-        col1,col2=st.columns([0.1,2])
-
-        with col1:
-            gif_runner = st.image('fox.gif')
+        with st.spinner('In progress'):
+     
+            if (inputcolumn.count(',')>0) and (str(inputcolumn).count('-')==0):
+                columnslist = inputcolumn.split(',')
+            elif (inputcolumn.count('-')==1) and (inputcolumn.count(',')==0):
+                start=inputcolumn.split('-')[0]
+                stop=inputcolumn.split('-')[1]
+                columnslist = range_char(start,stop)
+            elif (str(inputcolumn).count('-')==0) and (str(inputcolumn).count(',')==0):
+                columnslist =inputcolumn
+            else :
+                st.write('Error')
             
-        with col2:
-            st.markdown('')
-            placeholder = st.empty()
-            placeholder.markdown('In progress...', unsafe_allow_html=True)
- 
-        if (inputcolumn.count(',')>0) and (str(inputcolumn).count('-')==0):
-            columnslist = inputcolumn.split(',')
-        elif (inputcolumn.count('-')==1) and (inputcolumn.count(',')==0):
-            start=inputcolumn.split('-')[0]
-            stop=inputcolumn.split('-')[1]
-            columnslist = range_char(start,stop)
-        elif (str(inputcolumn).count('-')==0) and (str(inputcolumn).count(',')==0):
-            columnslist =inputcolumn
-        else :
-            st.write('Error')
-        
-        columnlist_temp=[]
-        for i in columnslist:
-            if i.isnumeric():
-                columnlist_temp.append(int(i)-1)
-            else : 
-                columnlist_temp.append(ord(i)-65)    
-        
-        try :
+            columnlist_temp=[]
+            for i in columnslist:
+                if i.isnumeric():
+                    columnlist_temp.append(int(i)-1)
+                else : 
+                    columnlist_temp.append(ord(i)-65)    
             
-            columnslist=columnlist_temp
-        
-            timestr = time.strftime("%Y.%m.%d-%H.%M.%S")
-            flag = 1
-            
-            t1=time.perf_counter()
-
-            for lang_code,lang in languages.items():
-                if outputlang in lang:
-                    flag=1
-                    columns_=df.iloc[:,columnslist]
-                    
-                    if selecttranslator =='Google Tanslate':
-                        from googletrans import Translator
-                        translator = Translator()
-                        
-                        if replacecolumn=='Overwrite':
-                            for i,c in enumerate(columns_):
-                                df[c]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=lang_code).text if str(x) !='nan' else '')
-                        else :
-                            for i,c in enumerate(columns_):
-                                df["Translated "+c+" to "+lang]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=lang_code).text if str(x) !='nan' else '')
-                    else :
-                        if replacecolumn=='Overwrite':
-                            for i,c in enumerate(columns_):
-                                df[c]=df[c].map(lambda x: translator.translate_text(str(x), target_lang=lang_code.upper()).text if str(x) !='nan' else '')
-                        else :
-                            for i,c in enumerate(columns_):
-                                df["Translated "+c+" to "+lang]=df[c].map(lambda x: translator.translate_text(str(x), target_lang=lang_code.upper()).text if str(x) !='nan' else '')
-                             
-                        get_usage(translator)                  
-                        
-                    st.write(df.head(5).fillna(''), use_container_width=True)
-                    
-                    placeholder.empty()
-                    gif_runner.empty()
+            try :
                 
-                    t2=time.perf_counter()
+                columnslist=columnlist_temp
+            
+                timestr = time.strftime("%Y.%m.%d-%H.%M.%S")
+                flag = 1
+                
+                t1=time.perf_counter()
 
-                    st.success('Translation complete!')
-                    st.write('Execution time:'+str(round(t2-t1,1))+'s.')
-                    
-                    def to_excel(df):
-                        output = BytesIO()
-                        writer = pd.ExcelWriter(output, engine='xlsxwriter')
-                        df.to_excel(writer, index=False, sheet_name='Translated')
-                        workbook = writer.book
-                        worksheet = writer.sheets['Translated']
+                for lang_code,lang in languages.items():
+                    if outputlang in lang:
+                        flag=1
+                        columns_=df.iloc[:,columnslist]
                         
-                        writer.save()
-                        processed_data = output.getvalue()
-                        return processed_data
+                        if selecttranslator =='Google Tanslate':
+                            from googletrans import Translator
+                            translator = Translator()
+                            
+                            if replacecolumn=='Overwrite':
+                                for i,c in enumerate(columns_):
+                                    df[c]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=lang_code).text if str(x) !='nan' else '')
+                            else :
+                                for i,c in enumerate(columns_):
+                                    df["Translated "+c+" to "+lang]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=lang_code).text if str(x) !='nan' else '')
+                        else :
+                            if replacecolumn=='Overwrite':
+                                for i,c in enumerate(columns_):
+                                    df[c]=df[c].map(lambda x: translator.translate_text(str(x), target_lang=lang_code.upper()).text if str(x) !='nan' else '')
+                            else :
+                                for i,c in enumerate(columns_):
+                                    df["Translated "+c+" to "+lang]=df[c].map(lambda x: translator.translate_text(str(x), target_lang=lang_code.upper()).text if str(x) !='nan' else '')
+                                 
+                            get_usage(translator)                  
+                            
+                        st.write(df.head(5).fillna(''), use_container_width=True)
+
+                        t2=time.perf_counter()
+
+                        st.success('Translation complete!')
+                        st.write('Execution time:'+str(round(t2-t1,1))+'s.')
                         
-                    df_xlsx = to_excel(df)
-                    
-                    from datetime import datetime
-                    now=datetime.now()
+                        def to_excel(df):
+                            output = BytesIO()
+                            writer = pd.ExcelWriter(output, engine='xlsxwriter')
+                            df.to_excel(writer, index=False, sheet_name='Translated')
+                            workbook = writer.book
+                            worksheet = writer.sheets['Translated']
+                            
+                            writer.save()
+                            processed_data = output.getvalue()
+                            return processed_data
+                            
+                        df_xlsx = to_excel(df)
+                        
+                        from datetime import datetime
+                        now=datetime.now()
 
-                    st.download_button(label='📥 Download Current Data',
-                                                data=df_xlsx ,
-                                                file_name= 'Translated_'+str(uploaded_file.name)[:-5]+'_'+str(now.year)+'-'+str(now.month).zfill(2)+'-'+str(now.day).zfill(2)+'.xlsx')
+                        st.download_button(label='📥 Download',
+                                                    data=df_xlsx ,
+                                                    file_name= 'Translated_'+str(uploaded_file.name)[:-5]+'_'+str(now.year)+'-'+str(now.month).zfill(2)+'-'+str(now.day).zfill(2)+'.xlsx')
 
-                else:
-                    flag=0
-                    continue
-        except Exception as e :
-            placeholder.empty()
-            gif_runner.empty()
-            st.write('FATAL ERROR : ',e)
+                    else:
+                        flag=0
+                        continue
+            except Exception as e :
+                st.write('FATAL ERROR : ',e)
 
