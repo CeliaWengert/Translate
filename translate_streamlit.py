@@ -9,7 +9,7 @@ import deepl
 auth_key = '885d4e9c-0f4f-67f3-2c8d-d9d35dc3d680:fx'
 translator = deepl.Translator(auth_key)
 
-st.set_page_config(page_title="Translate Excel", layout="wide",page_icon = 'ico.png')
+st.set_page_config(page_title="Translate Excel", layout="wide")#,page_icon = 'GE_favicon.png')
 
 st.markdown(
     """<style>
@@ -211,10 +211,10 @@ for uploaded_file in uploaded_files:
                     else :
                         if replacecolumn=='Overwrite':
                             for i,c in enumerate(columns_):
-                                df[c]=df[c].map(lambda x: translator.translate_text(x, target_lang=lang_code.upper()).text)
+                                df[c]=df[c].map(lambda x: translator.translate_text(str(x), target_lang=lang_code.upper()).text if str(x) !='nan' else '')
                         else :
                             for i,c in enumerate(columns_):
-                                df["Translated "+c+" to "+lang]=df[c].map(lambda x: translator.translate_text(x, target_lang=lang_code.upper()).text)
+                                df["Translated "+c+" to "+lang]=df[c].map(lambda x: translator.translate_text(str(x), target_lang=lang_code.upper()).text if str(x) !='nan' else '')
                              
                         get_usage(translator)                  
                         
