@@ -31,6 +31,7 @@ st.markdown(
     </style>""", unsafe_allow_html=True)
 col1,col2=st.columns([0.08,2])
 with col1:
+    st.markdown('')
     st.image('ico2.png', use_column_width='auto')
 with col2:
     st.title(" Excel file translator")
