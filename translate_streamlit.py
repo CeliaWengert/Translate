@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-from googletrans import Translator
 import time
 import getopt, sys
 from pyxlsb import open_workbook as open_xlsb
@@ -73,6 +72,9 @@ languages = {'af': 'afrikaans','sq': 'albanian',
 'xh': 'xhosa', 'yi': 'yiddish', 
 'yo': 'yoruba', 'zu': 'zulu'}
 
+def get_keys_from_value(d, val):
+    return [k for k, v in d.items() if v == val]
+
 def range_char(start, stop):
     if (type(start) == int) and (type(stop) == int):
         return list(range(start, stop+1))
@@ -106,8 +108,42 @@ for uploaded_file in uploaded_files:
     outputlang = st.selectbox('Output language',languages.values(),index=26,key = "1_2")
     inputcolumn = st.text_input('List of columns to translate   (for example : 1,5/A,E or A-E/1-5 for a range of columns)', 'A',key = "1_3")
     replacecolumn = st.selectbox('Writting option',['Overwrite','Append'],index=1,key = "1_4")
-    chosoeTranslator = st.selectbox('Choose translator',['Google Tanslate','DeepL (not available)'],index=1,key = "1_5")
-
+    selecttranslator = st.selectbox('Translator engine',['Google Tanslate','DeepL (available in beta, under development)'],index=1,key = "1_5")
+    
+    if selecttranslator !='Google Tanslate':
+    
+        import deepl
+        auth_key = '885d4e9c-0f4f-67f3-2c8d-d9d35dc3d680:fx'
+        translator = deepl.Translator(auth_key)
+        
+        usage = translator.get_usage()
+        if usage.any_limit_reached:
+            st.error('Translation limit reached.')
+            pass
+        if usage.character.valid:
+            st.success(f"Character usage: {usage.character.count} of {usage.character.limit}")
+        if usage.document.valid:
+            st.success(f"Document usage: {usage.document.count} of {usage.document.limit}")
+         
+        # glossary = st.checkbox('Use glossary')
+            
+        # if glossary :
+            # my_glossary=pd.read_csv('my_glossary.csv',sep=';',encoding='utf-8')
+            # entries = st.text_input("Enter your personnal key words : for example {'artist': 'Maler', 'prize': 'Gewinn'}")
+            # list_entries=[]
+            # for i in entries.split(','):
+                # list_entries.append(i.split(':'))
+            # df_entries=pd.DataFrame(list_entries)
+            
+            # df_entries.to_csv('my_glossary.csv',sep=';',encoding='utf-8')
+            # source_lang='NL'#get_keys_from_value(languages, inputlang)[0].upper()
+            # target_lang='FR'#get_keys_from_value(languages, outputlang)[0].upper()
+            
+            # my_glossary = translator.create_glossary("my_glossary",source_lang=source_lang,target_lang=target_lang,entries={item[0]: item[1] for item in list_entries})
+            # st.write(f"Created '{my_glossary.name}' ({my_glossary.glossary_id}) ")
+            # st.write(f"{my_glossary.source_lang}->{my_glossary.target_lang} ")
+            # st.write(f"containing {my_glossary.entry_count} entries")
+   
     if st.button('Translate !'):
     
         col1,col2=st.columns([0.1,2])
@@ -150,15 +186,27 @@ for uploaded_file in uploaded_files:
             for lang_code,lang in languages.items():
                 if outputlang in lang:
                     flag=1
-                    translator = Translator()
                     columns_=df.iloc[:,columnslist]
                     
-                    if replacecolumn=='Overwrite':
-                        for i,c in enumerate(columns_):
-                            df[c]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=lang_code).text)
+                    if selecttranslator =='Google Tanslate':
+                        from googletrans import Translator
+                        translator = Translator()
+                        
+                        if replacecolumn=='Overwrite':
+                            for i,c in enumerate(columns_):
+                                df[c]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=lang_code).text)
+                        else :
+                            for i,c in enumerate(columns_):
+                                df["Translated "+c+" to "+lang]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=lang_code).text)
                     else :
-                        for i,c in enumerate(columns_):
-                            df["Translated "+c+" to "+lang]=df[c].map(lambda x: translator.translate(x, src=inputlang, dest=lang_code).text)
+                        if replacecolumn=='Overwrite':
+                            for i,c in enumerate(columns_):
+                                df[c]=df[c].map(lambda x: translator.translate_text(x, target_lang=lang_code.upper()).text)
+                        else :
+                            for i,c in enumerate(columns_):
+                                df["Translated "+c+" to "+lang]=df[c].map(lambda x: translator.translate_text(x, target_lang=lang_code.upper()).text)
+                    
+                    
                         
                     st.write(df.head(5).fillna(''), use_container_width=True)
                     
@@ -194,5 +242,7 @@ for uploaded_file in uploaded_files:
                     flag=0
                     continue
         except Exception as e :
+            placeholder.empty()
+            gif_runner.empty()
             st.write('FATAL ERROR : ',e)
 
