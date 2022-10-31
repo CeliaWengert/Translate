@@ -4,6 +4,10 @@ import time
 import getopt, sys
 from pyxlsb import open_workbook as open_xlsb
 from io import BytesIO
+import deepl
+
+auth_key = '885d4e9c-0f4f-67f3-2c8d-d9d35dc3d680:fx'
+translator = deepl.Translator(auth_key)
 
 st.set_page_config(page_title="Translate Excel", layout="wide")#,page_icon = 'GE_favicon.png')
 
@@ -72,6 +76,18 @@ languages = {'af': 'afrikaans','sq': 'albanian',
 'xh': 'xhosa', 'yi': 'yiddish', 
 'yo': 'yoruba', 'zu': 'zulu'}
 
+# @st.cache(allow_output_mutation=True,suppress_st_warning=True)
+def get_usage(translator):
+    usage = translator.get_usage()
+    if usage.any_limit_reached:
+        status=st.error('Translation limit reached.')
+    if usage.character.valid:
+        status=st.success(f"Character usage: {usage.character.count} of {usage.character.limit}")
+    # if usage.document.valid:
+        # status=st.success(f"Document usage: {usage.document.count} of {usage.document.limit}")
+    return status
+
+
 def get_keys_from_value(d, val):
     return [k for k, v in d.items() if v == val]
 
@@ -111,19 +127,8 @@ for uploaded_file in uploaded_files:
     selecttranslator = st.selectbox('Translator engine',['Google Tanslate','DeepL (available in beta, under development)'],index=1,key = "1_5")
     
     if selecttranslator !='Google Tanslate':
-    
-        import deepl
-        auth_key = '885d4e9c-0f4f-67f3-2c8d-d9d35dc3d680:fx'
-        translator = deepl.Translator(auth_key)
         
-        usage = translator.get_usage()
-        if usage.any_limit_reached:
-            st.error('Translation limit reached.')
-            pass
-        if usage.character.valid:
-            st.success(f"Character usage: {usage.character.count} of {usage.character.limit}")
-        if usage.document.valid:
-            st.success(f"Document usage: {usage.document.count} of {usage.document.limit}")
+        usage=get_usage(translator)
          
         # glossary = st.checkbox('Use glossary')
             
@@ -145,6 +150,8 @@ for uploaded_file in uploaded_files:
             # st.write(f"containing {my_glossary.entry_count} entries")
    
     if st.button('Translate !'):
+    
+        usage.empty()
     
         col1,col2=st.columns([0.1,2])
 
@@ -205,8 +212,8 @@ for uploaded_file in uploaded_files:
                         else :
                             for i,c in enumerate(columns_):
                                 df["Translated "+c+" to "+lang]=df[c].map(lambda x: translator.translate_text(x, target_lang=lang_code.upper()).text)
-                    
-                    
+                             
+                        get_usage(translator)                  
                         
                     st.write(df.head(5).fillna(''), use_container_width=True)
                     
