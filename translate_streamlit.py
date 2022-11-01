@@ -106,7 +106,9 @@ def get_keys_from_value(d, val):
 def range_char(start, stop):
     if (type(start) == int) and (type(stop) == int):
         return list(range(start, stop+1))
-    else : 
+    else :
+        start=start.upper()
+        stop=stop.upper()
         return [chr(n) for n in range(ord(start), ord(stop)+1)]
         
 def dataframe_viz(df):
@@ -184,12 +186,14 @@ for i,uploaded_file in enumerate(uploaded_files):
      
             if (inputcolumn.count(',')>0) and (str(inputcolumn).count('-')==0):
                 columnslist = inputcolumn.split(',')
+                columnslist=[n.upper() for n in columnslist if type(n) != int]
             elif (inputcolumn.count('-')==1) and (inputcolumn.count(',')==0):
                 start=inputcolumn.split('-')[0]
                 stop=inputcolumn.split('-')[1]
                 columnslist = range_char(start,stop)
             elif (str(inputcolumn).count('-')==0) and (str(inputcolumn).count(',')==0):
                 columnslist =inputcolumn
+                columnslist=[n.upper() for n in columnslist if type(n) != int]
             else :
                 st.write('Error')
             
