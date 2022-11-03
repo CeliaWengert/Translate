@@ -3,6 +3,7 @@ import pandas as pd
 import time
 import getopt, sys
 from pyxlsb import open_workbook as open_xlsb
+from openpyxl.utils import get_column_letter, column_index_from_string
 from io import BytesIO
 import deepl
 
@@ -38,7 +39,6 @@ with col1:
 with col2:
     st.markdown(f'<p style="color:#83C9FF;font-size:75px;">{"Excel file translator"}</p>', unsafe_allow_html=True)
     
-
 languages = {'af': 'afrikaans','sq': 'albanian', 
 'am': 'amharic', 'ar': 'arabic', 
 'hy': 'armenian', 'az': 'azerbaijani', 
@@ -103,14 +103,7 @@ def get_usage(translator):
 def get_keys_from_value(d, val):
     return [k for k, v in d.items() if v == val]
 
-def range_char(start, stop):
-    if (type(start) == int) and (type(stop) == int):
-        return list(range(start, stop+1))
-    else :
-        start=start.upper()
-        stop=stop.upper()
-        return [chr(n) for n in range(ord(start), ord(stop)+1)]
-        
+
 def dataframe_viz(df):
     df_viz=df
     cols_viz=[]
@@ -119,7 +112,7 @@ def dataframe_viz(df):
     df_viz.sort_index(inplace=True) 
     
     for i in range(df_viz.shape[1]):
-        cols_viz.append(chr(i+65))
+        cols_viz.append(get_column_letter(i+1))
     df_viz=df_viz.set_axis(cols_viz, axis=1)
     return df_viz.head(5).fillna('')
     
@@ -144,6 +137,28 @@ for i,uploaded_file in enumerate(uploaded_files):
         
     else :
         st.dataframe(dataframe_viz(pd.read_excel(uploaded_file)).style.apply(row_style, axis=1))
+        
+        # from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
+        
+        # data=dataframe_viz(pd.read_excel(uploaded_file))
+        
+        # gb = GridOptionsBuilder.from_dataframe(data)
+        # gb.configure_pagination(paginationAutoPageSize=True) #Add pagination
+        # gridOptions = gb.build()
+
+        # grid_response = AgGrid(
+            # data,
+            # gridOptions=gridOptions,
+            # data_return_mode='AS_INPUT', 
+            # update_mode='MODEL_CHANGED', 
+            # fit_columns_on_grid_load=True,
+            # theme='dark', #Add theme color to the table : Available options: ['streamlit', 'light', 'dark', 'blue', 'fresh', 'material']
+            # enable_enterprise_modules=True,
+            # height=200, 
+            # width='100%',
+            # reload_data=True)
+        # data=grid_response['data']
+        
         df = pd.read_excel(uploaded_file)
 
     inputlang = st.selectbox('Source language',languages.values(),index=20,key = str(i)+"_1")
@@ -186,28 +201,33 @@ for i,uploaded_file in enumerate(uploaded_files):
      
             if (inputcolumn.count(',')>0) and (str(inputcolumn).count('-')==0):
                 columnslist = inputcolumn.split(',')
-                columnslist=[n.upper() for n in columnslist if type(n) != int]
+                columnslist=map(lambda x:int(x)-1 if x.isnumeric() else int(column_index_from_string(x)-1), columnslist)
+                
             elif (inputcolumn.count('-')==1) and (inputcolumn.count(',')==0):
                 start=inputcolumn.split('-')[0]
                 stop=inputcolumn.split('-')[1]
-                columnslist = range_char(start,stop)
+                if start.isnumeric():
+                    start=int(start)
+                else :
+                    start=column_index_from_string(start)
+                if stop.isnumeric():
+                    stop=int(stop)
+                else :
+                    stop=column_index_from_string(stop)
+                columnslist = list(range(start-1, stop))
+                
             elif (str(inputcolumn).count('-')==0) and (str(inputcolumn).count(',')==0):
-                columnslist =inputcolumn
-                columnslist=[n.upper() for n in columnslist if type(n) != int]
+                if inputcolumn.isnumeric():
+                    columnslist =[int(inputcolumn)-1]
+                else:
+                    columnslist =[int(column_index_from_string(inputcolumn)-1)]
+                    
             else :
                 st.write('Error')
-            
-            columnlist_temp=[]
-            for i in columnslist:
-                if i.isnumeric():
-                    columnlist_temp.append(int(i)-1)
-                else : 
-                    columnlist_temp.append(ord(i)-65)    
-            
+                
+                
             try :
                 
-                columnslist=columnlist_temp
-            
                 timestr = time.strftime("%Y.%m.%d-%H.%M.%S")
                 flag = 1
                 
@@ -217,7 +237,7 @@ for i,uploaded_file in enumerate(uploaded_files):
                     if outputlang in lang:
                         flag=1
                         columns_=df.iloc[:,columnslist]
-                                                
+                                                                        
                         if selecttranslator =='Google Tanslate':
                             from googletrans import Translator
                             translator = Translator()
@@ -234,14 +254,14 @@ for i,uploaded_file in enumerate(uploaded_files):
                             if replacecolumn=='Overwrite':
                                 for i,c in enumerate(columns_):
                                     df[c]=df[c].map(lambda x: translator.translate_text(str(x), target_lang=lang_code.upper()).text if str(x) !='nan' else '')
-                                get_usage(translator)                  
+                                get_usage(translator)
                                 st.write(df.head(5).fillna('').style.set_properties(**{'color':'#00FF00'}, subset=[c for i,c in enumerate(columns_)]))
                             else :
                                 for i,c in enumerate(columns_):
                                     df["Translated "+c+" to "+lang]=df[c].map(lambda x: translator.translate_text(str(x), target_lang=lang_code.upper()).text if str(x) !='nan' else '')
-                                get_usage(translator)                  
-                                st.write(df.head(5).fillna('').style.set_properties(**{'color': '#00FF00'}, subset=["Translated "+c+" to "+lang for i,c in enumerate(columns_)]))                            
-
+                                get_usage(translator)
+                                st.write(df.head(5).fillna('').style.set_properties(**{'color': '#00FF00'}, subset=["Translated "+c+" to "+lang for i,c in enumerate(columns_)]))
+                            
                         t2=time.perf_counter()
 
                         st.success('Translation complete!')
