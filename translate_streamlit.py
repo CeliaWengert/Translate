@@ -274,7 +274,7 @@ for i,uploaded_file in enumerate(uploaded_files):
                             workbook = writer.book
                             worksheet = writer.sheets['Translated']
                             
-                            writer.save()
+                            writer.close()
                             processed_data = output.getvalue()
                             return processed_data
                             
